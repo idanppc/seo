@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>משחק טריוויה נכון/לא נכון</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: center;
+            padding: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .result {
+            display: none;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>משחק טריוויה נכון/לא נכון</h1>
+
+<div id="quiz">
+    <!-- השאלות יהיו כאן -->
+</div>
+
+<button onclick="showScore()">סיום החידון</button>
+
+<div id="score" style="display: none;">
+    <h2>הניקוד שלך: <span id="scoreValue"></span></h2>
+</div>
+
+<script>
+    const questions = [
+        { text: "קידום אתרים אורגני (SEO) כרוך בתשלום לגוגל.", correct: false, explanation: "קידום אתרים אורגני אינו כרוך בתשלום לגוגל, אלא מדובר בשיטות לשיפור דירוג האתר בתוצאות החיפוש באופן טבעי." },
+        { text: "פרסום דיספליי כולל באנרים באתרי אינטרנט.", correct: true, explanation: "פרסום דיספליי כולל מודעות גרפיות כמו באנרים המופיעים באתרים." },
+        { text: "שיווק באמצעות תוכן אינו כולל כתיבת מאמרים אורחים לאתרים אחרים.", correct: false, explanation: "שיווק באמצעות תוכן כולל גם כתיבת מאמרים אורחים לאתרים אחרים כדי להגיע לקהל רחב יותר." },
+        { text: "PPC היא שיטת תשלום לפי קליק.", correct: true, explanation: "PPC (Pay-Per-Click) היא שיטת תשלום לפרסום באינטרנט שבה המפרסם משלם עבור כל קליק על המודעה." },
+        { text: "אחת היתרונות של קידום אתרים אורגני הוא שאינו דורש תשלום לאחר הדירוג.", correct: true, explanation: "קידום אתרים אורגני אינו דורש תשלום מתמשך לאחר השגת דירוג גבוה בתוצאות החיפוש." },
+        { text: "שיווק באינטרנט מאפשר פילוח ודיוק בהגעה לקהל היעד.", correct: true, explanation: "שיווק באינטרנט מאפשר להגיע לקהלים ספציפיים באמצעות כלים מתקדמים לפילוח ודיוק." },
+        { text: "קידום שחור (Black Hat) כולל טכניקות אתיות לקידום האתר.", correct: false, explanation: "קידום שחור כולל טכניקות שאינן אתיות ואינן מומלצות, כגון ספאם, זיוף קישורים ותוכן מוסתר." },
+        { text: "Google Trends מאפשר לזהות מגמות חיפוש במנוע החיפוש של גוגל.", correct: true, explanation: "Google Trends הוא כלי שמאפשר לזהות מגמות חיפוש על בסיס נתונים של גוגל." },
+        { text: "ביטויי זנב ארוך הם ביטויים עם נפח חיפוש גבוה מאוד.", correct: false, explanation: "ביטויי זנב ארוך הם ביטויים ספציפיים יותר עם נפח חיפוש נמוך יותר, אך יכולים להביא תנועה איכותית." },
+        { text: "E-commerce מתייחס למכירה ישירות דרך האינטרנט.", correct: true, explanation: "E-commerce הוא תחום העוסק במסחר אלקטרוני, כלומר מכירה ישירות דרך האינטרנט." },
+        { text: "שיווק במנועי חיפוש (SEM) כולל רק פרסום אורגני.", correct: false, explanation: "שיווק במנועי חיפוש (SEM) כולל גם פרסום ממומן (PPC) וגם קידום אורגני (SEO)." },
+        { text: "Email Marketing הוא דיוור אלקטרוני.", correct: true, explanation: "Email Marketing הוא שיווק באמצעות שליחת דואר אלקטרוני לקהל יעד." },
+        { text: "Traffic מתייחס לתנועת מבקרים לאתר.", correct: true, explanation: "Traffic הוא המונח שמתאר את תנועת המבקרים לאתר." },
+        { text: "Affiliate Marketing הוא שיווק שותפים.", correct: true, explanation: "Affiliate Marketing הוא שיווק שבו משווקים מקבלים עמלה עבור הפניית לקוחות לאתר." },
+        { text: "SEO Quake הוא כלי למדידת מתחרים.", correct: true, explanation: "SEO Quake הוא כלי שמאפשר למדוד ולהשוות ביצועים של אתרים מתחרים." },
+        { text: "Who Is הוא כלי לבדיקת היסטוריית אתרים.", correct: false, explanation: "Who Is הוא כלי לבדיקת פרטי הדומיין, כגון בעלים ותאריך רישום, ולא לבדיקת היסטוריית אתרים." },
+        { text: "קידום אתרים ממומן (SEM) אינו כולל פרסומות.", correct: false, explanation: "קידום אתרים ממומן (SEM) כולל פרסומות בתשלום שמופיעות בתוצאות החיפוש." },
+        { text: "ניטור ברשת החברתית (Social Media Monitoring) מאפשר מעקב אחרי מותגים ברשת.", correct: true, explanation: "Social Media Monitoring הוא תהליך מעקב אחרי אזכורים ומותגים ברשתות החברתיות." },
+        { text: "PPA היא שיטת תשלום לפי ליד.", correct: false, explanation: "PPA (Pay-Per-Action) היא שיטת תשלום לפי פעולה מוגדרת, לא לפי ליד." },
+        { text: "כתיבת בלוגים היא חלק משיווק באמצעות תוכן.", correct: true, explanation: "כתיבת בלוגים היא טכניקה נפוצה בשיווק באמצעות תוכן ליצירת תכנים חדשים ומעניינים לקהל היעד." },
+        { text: "מדיה חברתית מאפשרת אינטראקציות רק בין אנשים פרטיים.", correct: false, explanation: "מדיה חברתית מאפשרת אינטראקציות בין אנשים פרטיים וגם בין עסקים ללקוחות." },
+        { text: "שיווק אורגני ברשתות חברתיות הוא בתשלום.", correct: false, explanation: "שיווק אורגני ברשתות חברתיות אינו כרוך בתשלום לפרסום, אלא מבוסס על תוכן וטכניקות טבעיות." },
+        { text: "משפיענים הם אנשים שיש להם קהל עוקבים שמאמין להם.", correct: true, explanation: "משפיענים הם אנשים בעלי השפעה שיש להם קהל עוקבים שמאמין להם וסומך עליהם." },
+        { text: "ניתן לפלח קהל יעד לפי גיל ומין ברשתות החברתיות.", correct: true, explanation: "ברשתות החברתיות קיימים כלים מתקדמים לפילוח קהל יעד לפי גיל, מין, תחומי עניין ועוד." },
+        { text: "פרסום ממומן ברשתות חברתיות אינו דורש תקציב מינימלי.", correct: true, explanation: "ברוב הרשתות החברתיות אין דרישה לתקציב מינימלי, וניתן להתאים את התקציב לפי הצרכים." },
+        { text: "תוצאות אורגניות בגוגל מופיעות בחינם.", correct: true, explanation: "תוצאות אורגניות הן התוצאות הטבעיות שמופיעות בחיפוש בגוגל ואינן כרוכות בתשלום." },
+        { text: "תוצאות ממומנות מופיעות תמיד מתחת לתוצאות האורגניות.", correct: false, explanation: "תוצאות ממומנות יכולות להופיע מעל התוצאות האורגניות, בצדדים או מתחתיהן." },
+        { text: "אפשר לפרסם בגוגל גם ללא תקציב יומי.", correct: false, explanation: "פרסום בגוגל דורש הגדרת תקציב יומי כדי לשלוט בהוצאות הפרסום." },
+        { text: "המכרז בגוגל מבוסס רק על הצעת המחיר.", correct: false, explanation: "המכרז בגוגל מבוסס גם על הצעת המחיר וגם על רלוונטיות ואיכות המודעה." },
+        { text: "פרסומות של גוגל יכולות להופיע גם באפליקציות מובייל.", correct: true, explanation: "פרסומות של גוגל יכולות להופיע באתרים, אפליקציות מובייל, יוטיוב ועוד." },
+        { text: "שיווק בעזרת משפיענים תמיד מבטיח הצלחה.", correct: false, explanation: "שיווק בעזרת משפיענים יכול להיות יעיל, אך אין הבטחה להצלחה והוא תלוי בגורמים רבים." },
+        { text: "תשלום לפרסום ממומן ברשתות חברתיות הוא לפי קליקים בלבד.", correct: false, explanation: "ישנם מודלים שונים לתשלום ברשתות חברתיות, כולל לפי חשיפות, קליקים, ולידים." },
+        { text: "גוגל פליי היא פלטפורמה לפרסום של גוגל.", correct: true, explanation: "גוגל פליי היא חנות האפליקציות של גוגל, וניתן לפרסם בה אפליקציות ותכנים נוספים." },
+        { text: "CPM הוא תשלום לפי חשיפות.", correct: true, explanation: "CPM (Cost Per Mille) הוא מודל תשלום לפי 1,000 חשיפות למודעה." },
+        { text: "עסקים קטנים לא יכולים להקים דפים עסקיים ברשתות חברתיות.", correct: false, explanation: "עסקים קטנים בהחלט יכולים להקים דפים עסקיים ברשתות חברתיות ולשווק את עצמם." },
+        { text: "התוצאות הממומנות משפיעות על דירוג התוצאות האורגניות.", correct: false, explanation: "התוצאות הממומנות אינן משפיעות על דירוג התוצאות האורגניות בגוגל." },
+        { text: "SEO עוסק גם בפרסום ממומן.", correct: false, explanation: "SEO (Search Engine Optimization) עוסק בקידום אורגני בלבד, ללא פרסום ממומן." },
+        { text: "קידום אורגני בגוגל מהיר יותר מקידום ממומן.", correct: false, explanation: "קידום אורגני בגוגל דורש זמן ומאמץ רב יותר לעומת קידום ממומן." },
+        { text: "פרסום בגוגל מתאים רק לעסקים גדולים.", correct: false, explanation: "פרסום בגוגל מתאים לעסקים בכל הגדלים וניתן להתאים את התקציב לפי הצרכים." },
+        { text: "אפשר לשווק במדיה חברתית בעזרת ממים ותוכן הומוריסטי.", correct: true, explanation: "שיווק במדיה חברתית יכול לכלול שימוש בממים ותוכן הומוריסטי כדי למשוך תשומת לב ולהגביר מעורבות." }
+    ];
+
+    let score = 0;
+
+    function checkAnswer(button, isCorrect, explanation) {
+        const resultDiv = button.parentElement.querySelector('.result');
+        resultDiv.style.display = 'block';
+        if (isCorrect) {
+            resultDiv.style.color = 'green';
+            resultDiv.textContent = 'נכון!';
+            score++;
+        } else {
+            resultDiv.style.color = 'red';
+            resultDiv.textContent = `לא נכון. ${explanation}`;
+        }
+        // Disable buttons after selection
+        const buttons = button.parentElement.querySelectorAll('button');
+        buttons.forEach(btn => btn.disabled = true);
+    }
+
+    function showScore() {
+        document.getElementById('scoreValue').textContent = score;
+        document.getElementById('score').style.display = 'block';
+    }
+
+    function loadQuiz() {
+        const quizDiv = document.getElementById('quiz');
+        questions.forEach((question, index) => {
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question';
+            
+            const questionText = document.createElement('p');
+            questionText.textContent = `${index + 1}. ${question.text}`;
+            
+            const trueButton = document.createElement('button');
+            trueButton.textContent = 'נכון';
+            trueButton.onclick = () => checkAnswer(trueButton, question.correct, question.explanation);
+            
+            const falseButton = document.createElement('button');
+            falseButton.textContent = 'לא נכון';
+            falseButton.onclick = () => checkAnswer(falseButton, !question.correct, question.explanation);
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result';
+            
+            questionDiv.appendChild(questionText);
+            questionDiv.appendChild(trueButton);
+            questionDiv.appendChild(falseButton);
+            questionDiv.appendChild(resultDiv);
+            
+            quizDiv.appendChild(questionDiv);
+        });
+    }
+
+    loadQuiz();
+</script>
+
+</body>
+</html>
